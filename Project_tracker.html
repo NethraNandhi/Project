@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Tracker with Dashboard</title>
+    <style>
+        /* General styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            padding: 20px 0;
+            background-color: #ecf0f1;
+            margin: 0;
+            border-bottom: 2px solid #dcdfe1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .dashboard div {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #dcdfe1;
+            border-radius: 5px;
+            background-color: #ecf0f1;
+        }
+
+        .dashboard div h3 {
+            margin: 10px 0;
+            font-size: 20px;
+            color: #34495e;
+        }
+
+        .dashboard div p {
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-size: 16px;
+            color: #34495e;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+
+        td {
+            background-color: #ffffff;
+            color: #2c3e50;
+        }
+
+        tr:hover {
+            background-color: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Tracker with Dashboard</h1>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div>
+                <h3>Total Projects</h3>
+                <p id="totalProjects">0</p>
+            </div>
+            <div>
+                <h3>Immediate Completion</h3>
+                <p id="immediateProjects">0</p>
+            </div>
+            <div>
+                <h3>Upcoming Projects</h3>
+                <p id="upcomingProjects">0</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="projectForm">
+            <label for="projectName">Project Name:</label>
+            <input type="text" id="projectName" required><br><br>
+
+            <label for="useCase">Use Case:</label>
+            <input type="text" id="useCase" required><br><br>
+
+            <label for="sprints">Sprints (1sprint = 4Weeks):</label>
+            <input type="number" id="sprints" min="0" required><br><br>
+
+            <button type="button" onclick="addProject()">Add Project</button>
+        </form>
+
+        <!-- Immediate Projects Table -->
+        <h2>Projects Needing Immediate Completion (Sprints < 2)</h2>
+        <table id="immediateProjectsTable">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Use Case</th>
+                    <th>Sprints</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <!-- Upcoming Projects Table -->
+        <h2>Upcoming Projects (Sprints ≥ 2)</h2>
+        <table id="upcomingProjectsTable">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Use Case</th>
+                    <th>Sprints</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let projects = [];
+
+        function updateDashboard() {
+            const totalProjects = projects.length;
+            const immediateProjects = projects.filter((p) => p.sprints < 2).length;
+            const upcomingProjects = projects.filter((p) => p.sprints >= 2).length;
+
+            document.getElementById("totalProjects").textContent = totalProjects;
+            document.getElementById("immediateProjects").textContent = immediateProjects;
+            document.getElementById("upcomingProjects").textContent = upcomingProjects;
+        }
+
+        function updateTables() {
+            document.querySelector("#immediateProjectsTable tbody").innerHTML = "";
+            document.querySelector("#upcomingProjectsTable tbody").innerHTML = "";
+
+            projects.sort((a, b) => a.sprints - b.sprints);
+
+            projects
+                .filter((p) => p.sprints < 2)
+                .forEach((p) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${p.projectName}</td><td>${p.useCase}</td><td>${p.sprints}</td>`;
+                    document.querySelector("#immediateProjectsTable tbody").appendChild(row);
+                });
+
+            projects
+                .filter((p) => p.sprints >= 2)
+                .forEach((p) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${p.projectName}</td><td>${p.useCase}</td><td>${p.sprints}</td>`;
+                    document.querySelector("#upcomingProjectsTable tbody").appendChild(row);
+                });
+        }
+
+        function addProject() {
+            const projectName = document.getElementById("projectName").value;
+            const useCase = document.getElementById("useCase").value;
+            const sprints = parseInt(document.getElementById("sprints").value);
+
+            projects.push({ projectName, useCase, sprints });
+
+            updateDashboard();
+            updateTables();
+
+            document.getElementById("projectForm").reset();
+        }
+
+        updateDashboard();
+    </script>
+</body>
+</html>
